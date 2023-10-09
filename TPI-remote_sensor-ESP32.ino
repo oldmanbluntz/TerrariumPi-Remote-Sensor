@@ -9,12 +9,12 @@
 #include <HTTPClient.h>
 
 // Replace with your network credentials
-const char* ssid = "Bill Wi the Science Fi";
-const char* password = "goldenbitch5";
+const char* ssid = "SSID";
+const char* password = "PASSWORD";
 
 // Replace with your Raspberry Pi's IP address and port
-const char* serverAddress = "192.168.0.214";
-const int serverPort = 8090;
+const char* serverAddress = "Terrarium Pi ip";
+const int serverPort = 8090; //replace with your port
 
 // Define endpoints for each sensor
 const String ds18b20Endpoint = "/ds18b20";
