@@ -6,7 +6,7 @@
 #include <Wire.h>
 #include <BH1750.h>
 #include <ArduinoJson.h>
-#include <ESPAsyncWebServer.h>
+#include <ESPAsyncWebSrv.h>
 
 // Replace with your network credentials
 const char* ssid = "SSID";
@@ -55,7 +55,9 @@ void setup() {
   dht.begin();
 
   // Define web server routes
-  server.on("/ds18b20", HTTP_GET, handleDS18B20);
+  server.on("/ds18b20/sensor1#temperature", HTTP_GET, handleDS18B20Sensor1);
+  server.on("/ds18b20/sensor2#temperature", HTTP_GET, handleDS18B20Sensor2);
+  server.on("/ds18b20/sensor3#temperature", HTTP_GET, handleDS18B20Sensor3);
   server.on("/dht11", HTTP_GET, handleDHT11);
   server.on("/bh1750", HTTP_GET, handleBH1750);
 
@@ -67,10 +69,42 @@ void loop() {
   // No need for additional loop logic when using AsyncWebServer
 }
 
-void handleDS18B20(AsyncWebServerRequest *request) {
+void handleDS18B20Sensor1(AsyncWebServerRequest *request) {
+  // Handle DS18B20 sensor 1 data here
+  // You can use sensors.getTempCByIndex(0) for the first sensor, sensors.getTempCByIndex(1) for the second sensor, and so on
   DynamicJsonDocument jsonDoc(256); // Adjust the size as needed
   JsonObject ds18b20Data = jsonDoc.to<JsonObject>();
-  float tempC = sensors.getTempCByIndex(0); // Assuming only one DS18B20 sensor
+  float tempC = sensors.getTempCByIndex(0); // Assuming first DS18B20 sensor
+  if (tempC != DEVICE_DISCONNECTED_C) {
+    ds18b20Data["sensor_type"] = "DS18B20";
+    ds18b20Data["temperature_C"] = tempC;
+  }
+  String jsonString;
+  serializeJson(ds18b20Data, jsonString);
+  request->send(200, "application/json", jsonString);
+}
+
+void handleDS18B20Sensor2(AsyncWebServerRequest *request) {
+  // Handle DS18B20 sensor 2 data here
+  // You can use sensors.getTempCByIndex(1) for the second sensor, and so on
+  DynamicJsonDocument jsonDoc(256); // Adjust the size as needed
+  JsonObject ds18b20Data = jsonDoc.to<JsonObject>();
+  float tempC = sensors.getTempCByIndex(1); // Assuming second DS18B20 sensor
+  if (tempC != DEVICE_DISCONNECTED_C) {
+    ds18b20Data["sensor_type"] = "DS18B20";
+    ds18b20Data["temperature_C"] = tempC;
+  }
+  String jsonString;
+  serializeJson(ds18b20Data, jsonString);
+  request->send(200, "application/json", jsonString);
+}
+
+void handleDS18B20Sensor3(AsyncWebServerRequest *request) {
+  // Handle DS18B20 sensor 3 data here
+  // You can use sensors.getTempCByIndex(2) for the third sensor, and so on
+  DynamicJsonDocument jsonDoc(256); // Adjust the size as needed
+  JsonObject ds18b20Data = jsonDoc.to<JsonObject>();
+  float tempC = sensors.getTempCByIndex(2); // Assuming third DS18B20 sensor
   if (tempC != DEVICE_DISCONNECTED_C) {
     ds18b20Data["sensor_type"] = "DS18B20";
     ds18b20Data["temperature_C"] = tempC;
