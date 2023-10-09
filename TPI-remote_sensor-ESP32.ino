@@ -9,8 +9,8 @@
 #include <ESPAsyncWebServer.h>
 
 // Replace with your network credentials
-const char* ssid = "Bill Wi the Science Fi";
-const char* password = "goldenbitch5";
+const char* ssid = "SSID";
+const char* password = "Password";
 
 // Create an instance of the web server
 AsyncWebServer server(80);
