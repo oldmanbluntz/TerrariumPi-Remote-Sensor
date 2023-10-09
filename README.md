@@ -6,10 +6,10 @@ It uses 3 DS1820 temperature sensors on GPIO14, 1 DHT11 temperature/humidity sen
 You will have to add the ESP32 with the boards manager. esp32 by Espressif Systems.
 
 you will need the following libraries installed on ArduinoIDE:
-Adafruit Unified Sensor
-ArduinoJSON
-BH1750
-DHT sensor library
-DallasTemperature
-ESPAsyncWebSrv
+Adafruit Unified Sensor,
+ArduinoJSON,
+BH1750,
+DHT sensor library,
+DallasTemperature,
+ESPAsyncWebSrv,
 onewire
