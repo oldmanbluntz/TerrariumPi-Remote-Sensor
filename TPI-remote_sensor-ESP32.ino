@@ -6,20 +6,14 @@
 #include <Wire.h>
 #include <BH1750.h>
 #include <ArduinoJson.h>
-#include <HTTPClient.h>
+#include <ESPAsyncWebServer.h>
 
 // Replace with your network credentials
-const char* ssid = "SSID";
-const char* password = "PASSWORD";
+const char* ssid = "Bill Wi the Science Fi";
+const char* password = "goldenbitch5";
 
-// Replace with your Raspberry Pi's IP address and port
-const char* serverAddress = "Terrarium Pi ip";
-const int serverPort = 8090; //replace with your port
-
-// Define endpoints for each sensor
-const String ds18b20Endpoint = "/ds18b20";
-const String dht11Endpoint = "/dht11";
-const String bh1750Endpoint = "/bh1750";
+// Create an instance of the web server
+AsyncWebServer server(80);
 
 // Data pin for the DS18B20 sensors
 const int oneWireBus = 14; // D5 on NodeMCU-32
@@ -59,23 +53,21 @@ void setup() {
 
   // Initialize DHT sensor
   dht.begin();
+
+  // Define web server routes
+  server.on("/ds18b20", HTTP_GET, handleDS18B20);
+  server.on("/dht11", HTTP_GET, handleDHT11);
+  server.on("/bh1750", HTTP_GET, handleBH1750);
+
+  // Start the server
+  server.begin();
 }
 
 void loop() {
-  // Read DS18B20 sensors and send data
-  sendSensorData(ds18b20Endpoint, readDS18B20Data());
-
-  // Read DHT11 sensor and send data
-  sendSensorData(dht11Endpoint, readDHT11Data());
-
-  // Read BH1750 LUX sensor and send data
-  sendSensorData(bh1750Endpoint, readBH1750Data());
-
-  delay(60000); // Adjust the delay as needed
+  // No need for additional loop logic when using AsyncWebServer
 }
 
-// Function to read DS18B20 sensor data and return as JSON
-String readDS18B20Data() {
+void handleDS18B20(AsyncWebServerRequest *request) {
   DynamicJsonDocument jsonDoc(256); // Adjust the size as needed
   JsonObject ds18b20Data = jsonDoc.to<JsonObject>();
   float tempC = sensors.getTempCByIndex(0); // Assuming only one DS18B20 sensor
@@ -85,11 +77,10 @@ String readDS18B20Data() {
   }
   String jsonString;
   serializeJson(ds18b20Data, jsonString);
-  return jsonString;
+  request->send(200, "application/json", jsonString);
 }
 
-// Function to read DHT11 sensor data and return as JSON
-String readDHT11Data() {
+void handleDHT11(AsyncWebServerRequest *request) {
   DynamicJsonDocument jsonDoc(256); // Adjust the size as needed
   JsonObject dhtData = jsonDoc.to<JsonObject>();
   float humidity = dht.readHumidity();
@@ -101,11 +92,10 @@ String readDHT11Data() {
   }
   String jsonString;
   serializeJson(dhtData, jsonString);
-  return jsonString;
+  request->send(200, "application/json", jsonString);
 }
 
-// Function to read BH1750 LUX sensor data and return as JSON
-String readBH1750Data() {
+void handleBH1750(AsyncWebServerRequest *request) {
   DynamicJsonDocument jsonDoc(256); // Adjust the size as needed
   JsonObject luxData = jsonDoc.to<JsonObject>();
   float lux = lightSensor.readLightLevel();
@@ -115,25 +105,5 @@ String readBH1750Data() {
   }
   String jsonString;
   serializeJson(luxData, jsonString);
-  return jsonString;
-}
-
-// Function to send sensor data via HTTP GET request
-void sendSensorData(String sensorEndpoint, String sensorData) {
-  String url = "http://" + String(serverAddress) + ":" + String(serverPort) + sensorEndpoint + "#" + sensorData;
-  HTTPClient http;
-
-  if (http.begin(url)) {
-    int httpResponseCode = http.GET();
-    if (httpResponseCode > 0) {
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
-    } else {
-      Serial.print("Error in HTTP request. HTTP Response code: ");
-      Serial.println(httpResponseCode);
-    }
-    http.end();
-  } else {
-    Serial.println("Failed to connect to server");
-  }
+  request->send(200, "application/json", jsonString);
 }
